@@ -11,15 +11,12 @@ AProjectileBase::AProjectileBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
 	//create collision sphere
 	collSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collision"));
-	collSphere->InitSphereRadius(20.0f); //collsion size
+	collSphere->InitSphereRadius(20.0f); //collision size
 
 	//create mesh
-	projectileMesh = CreateDefaultSubobject<USkeletalMeshComponent>("SkeletalMeshComp");
+	//projectileMesh = CreateDefaultSubobject<USkeletalMeshComponent>("SkeletalMeshComp");
 
 	//set the root component to the collision sphere
 	RootComponent = collSphere;
@@ -41,6 +38,8 @@ void AProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//link the collision method with collision event
+	collSphere->OnComponentBeginOverlap.AddDynamic(this, &AProjectileBase::onHit);
 }
 
 // Called every frame

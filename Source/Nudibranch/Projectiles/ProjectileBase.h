@@ -24,8 +24,8 @@ public:
 // ******************************;
 
 public:
-	UPROPERTY(EditAnywhere)
-		class USkeletalMeshComponent* projectileMesh;
+	//UPROPERTY(EditAnywhere)
+		//class USkeletalMeshComponent* projectileMesh;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 		class USphereComponent* collSphere;

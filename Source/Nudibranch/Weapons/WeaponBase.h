@@ -23,11 +23,28 @@ protected:
 public:
 
 	void fire();
-	
+	void reload();
+
+	int getResAmmo();
+	int getClipAmmo();
+
 	UPROPERTY(EditAnywhere)
 		class USkeletalMeshComponent* weapMesh;
 
 	UPROPERTY(EditAnywhere)
 		class UAnimationAsset* fireAnim;
+
+	// Ammo parameters
+	UPROPERTY(EditAnywhere)
+		int ammoDiff; //ammo reserve
+
+	UPROPERTY(EditAnywhere)
+		int clipSize; //size of clip/mag
+
+	UPROPERTY(EditAnywhere)
+		int ammoInClip; //currently loaded ammo
+
+	UPROPERTY(EditAnywhere)
+		int reserveAmmo; //reserve ammo
 
 };

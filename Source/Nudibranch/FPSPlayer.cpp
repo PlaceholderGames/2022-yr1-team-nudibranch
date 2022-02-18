@@ -90,7 +90,7 @@ void AFPSPlayer::BeginPlay()
 
 			//set the muzzle location here as we need to gun to already exist
 			muzzleLocation->AttachToComponent(handsMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("GripPoint"));//should change this: projectile spawns at hands
-			muzzleLocation->SetRelativeLocation(FVector::ZeroVector); //(0.2f, 48.4f, -10.6f));
+			muzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));//::ZeroVector); //(0.2f, 48.4f, -10.6f));
 
 			//debug out
 			if (GEngine)
@@ -145,12 +145,25 @@ void AFPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void AFPSPlayer::onFire()
 {
+	world = GetWorld();
+
 	if (world != NULL) //check the world exists
 	{
 		spawnRotation = GetControlRotation();
 
 		//check muzzle is not null - if it is then use actor location
-		spawnLocation = ((muzzleLocation != nullptr) ? muzzleLocation->GetComponentLocation() : GetActorLocation()) + spawnRotation.RotateVector(gunOffset);
+		//spawnLocation = ((muzzleLocation != nullptr) ? muzzleLocation->GetComponentLocation() : GetActorLocation()) + spawnRotation.RotateVector(gunOffset);
+
+		if (muzzleLocation != nullptr)
+		{
+			//debug
+			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Muzzle not NULL"));
+			spawnLocation = muzzleLocation->GetComponentLocation();
+		}
+		else
+		{
+			spawnLocation = GetActorLocation() + spawnRotation.RotateVector(gunOffset);
+		}
 
 		//check if the projectile will collide immediatly, if it does then try to move it
 		FActorSpawnParameters actorSpawnParams;
@@ -158,12 +171,18 @@ void AFPSPlayer::onFire()
 
 		//TO DO: MAKE THIS SPAWN A WEAPON SPECIFIC PROJECTILE
 		//spawn the projectile
-		projectile = world->SpawnActor<AProjectileBase>(ProjectileClass, spawnLocation, spawnRotation, actorSpawnParams);
+		//projectile = 
+		world->SpawnActor<AProjectileBase>(ProjectileClass, spawnLocation, spawnRotation, actorSpawnParams);
 		
 		//debug
 		if (GEngine && projectile != NULL)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Projectile Spawned"));
+		//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Projectile Spawned"));
+		}
+
+		if (weap != NULL)
+		{
+			weap->fire();
 		}
 
 		//TO DO: MAKE THIS PLAY A WEAPON SPECIFIC SOUND
