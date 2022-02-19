@@ -6,6 +6,7 @@
 #include "Weapons/WeaponBase.h"
 #include "Projectiles/ProjectileBase.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -20,6 +21,7 @@ AFPSPlayer::AFPSPlayer()
 
 	//default capsule(collision) size
 	GetCapsuleComponent()->InitCapsuleSize(40.0f, 95.0f);
+	RootComponent = GetCapsuleComponent();
 
 	//default sensitivity
 	turnRate = 45.0f;
@@ -59,6 +61,10 @@ AFPSPlayer::AFPSPlayer()
 	//set offset for the gun
 	gunOffset = FVector(100.0f, 0.0f, 10.0f);
 
+	bIsSprinting = false;
+	bIsSneaking = false;
+	bIsCrouched = false;
+
 }
 
 // Called when the game starts or when spawned
@@ -90,7 +96,7 @@ void AFPSPlayer::BeginPlay()
 
 			//set the muzzle location here as we need to gun to already exist
 			muzzleLocation->AttachToComponent(handsMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("GripPoint"));//should change this: projectile spawns at hands
-			muzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));//::ZeroVector); //(0.2f, 48.4f, -10.6f));
+			muzzleLocation->SetRelativeLocation(FVector::ZeroVector); //(0.2f, 48.4f, -10.6f));
 
 			//debug out
 			if (GEngine)
@@ -128,7 +134,22 @@ void AFPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	//bind fire event
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPSPlayer::onFire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPSPlayer::startFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AFPSPlayer::stopFire);
+
+	//bind reload event
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AFPSPlayer::reload);
+
+	//bind crouch event
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AFPSPlayer::crouch);
+
+	//bind sneak event
+	PlayerInputComponent->BindAction("Sneak", IE_Pressed, this, &AFPSPlayer::startSneak);
+	PlayerInputComponent->BindAction("Sneak", IE_Released, this, &AFPSPlayer::stopSneak);
+
+	//bind sprint event
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AFPSPlayer::startSprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AFPSPlayer::stopSprint);
 
 	//movement events
 	PlayerInputComponent->BindAxis("MoveForward", this, &AFPSPlayer::moveForward);
@@ -143,68 +164,94 @@ void AFPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 }
 
-void AFPSPlayer::onFire()
+void AFPSPlayer::startFire()
 {
-	world = GetWorld();
-
-	if (world != NULL) //check the world exists
+	if (weap != nullptr)
 	{
-		spawnRotation = GetControlRotation();
-
-		//check muzzle is not null - if it is then use actor location
-		//spawnLocation = ((muzzleLocation != nullptr) ? muzzleLocation->GetComponentLocation() : GetActorLocation()) + spawnRotation.RotateVector(gunOffset);
-
-		if (muzzleLocation != nullptr)
-		{
-			//debug
-			//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Muzzle not NULL"));
-			spawnLocation = muzzleLocation->GetComponentLocation();
-		}
-		else
-		{
-			spawnLocation = GetActorLocation() + spawnRotation.RotateVector(gunOffset);
-		}
-
-		//check if the projectile will collide immediatly, if it does then try to move it
-		FActorSpawnParameters actorSpawnParams;
-		actorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		//TO DO: MAKE THIS SPAWN A WEAPON SPECIFIC PROJECTILE
-		//spawn the projectile
-		//projectile = 
-		world->SpawnActor<AProjectileBase>(ProjectileClass, spawnLocation, spawnRotation, actorSpawnParams);
-		
-		//debug
-		if (GEngine && projectile != NULL)
-		{
-		//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Projectile Spawned"));
-		}
-
-		if (weap != NULL)
-		{
-			weap->fire();
-		}
-
-		//TO DO: MAKE THIS PLAY A WEAPON SPECIFIC SOUND
-		//play the sound if it is not null
-		if (fireSound != NULL)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, fireSound, GetActorLocation());
-		}
-
-		//TO DO: MAKE THIS PLAY A WEAPON SPECIFIC ANIMATION
-		//play the animation if the animation & instance are not null
-		if (fireAnim != NULL && animInstance != NULL)
-		{
-			animInstance->Montage_Play(fireAnim, 1.0f);
-		}
+		weap->startFire();
 	}
 }
+
+void AFPSPlayer::stopFire()
+{
+	if (weap != nullptr)
+	{
+		weap->stopFire();
+	}
+}
+
+void AFPSPlayer::reload()
+{
+	if (weap != nullptr) 
+	{
+		weap->reload(); 
+	}
+}
+
+void AFPSPlayer::crouch()
+{
+	bIsCrouched = !bIsCrouched; //toggle crouch
+
+	if (bIsCrouched)
+	{
+		GetCharacterMovement()->bWantsToCrouch = true;
+		GetCapsuleComponent()->SetCapsuleHalfHeight(40.0f);
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Crouched"));
+	}
+	else
+	{
+		GetCharacterMovement()->bWantsToCrouch = false;
+		GetCapsuleComponent()->SetCapsuleHalfHeight(95.0f);
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Uncrouched"));
+	}
+}
+
+void AFPSPlayer::startSneak()
+{
+	bIsSneaking = true;
+	//GetCharacterMovement()->MaxWalkSpeed /= sneakMultiplier;
+}
+
+void AFPSPlayer::stopSneak()
+{
+	bIsSneaking = false;
+	//GetCharacterMovement()->MaxWalkSpeed *= sneakMultiplier;
+}
+
+void AFPSPlayer::startSprint()
+{
+	bIsSprinting = true;
+	//GetCharacterMovement()->MaxWalkSpeed *= sprintMultiplier;
+}
+
+void AFPSPlayer::stopSprint()
+{
+	bIsSprinting = false;
+	//GetCharacterMovement()->MaxWalkSpeed /= sprintMultiplier;
+}
+
 
 void AFPSPlayer::moveForward(float val)
 {
 	if (val != 0.0f) //if val is not nothing then
 	{	//add movement input
+
+		if (!bIsCrouched)
+		{
+			if (bIsSprinting)
+			{
+				val *= sprintMultiplier;
+			}
+			else if (bIsSneaking)
+			{
+				val *= sneakMultiplier;
+			}
+			else
+			{
+				val *= walkMultiplier;
+			}
+		}
+
 		AddMovementInput(GetActorForwardVector(), val);
 	}
 }

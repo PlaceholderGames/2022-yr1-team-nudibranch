@@ -67,7 +67,22 @@ public:
 
 protected:
 
-	void onFire();
+	bool bIsSprinting = false;
+	bool bIsSneaking = false;
+	float sprintMultiplier = 1.0f;
+	float walkMultiplier = 0.70f;
+	float sneakMultiplier = 0.25f;
+
+	void startFire();
+	void stopFire();
+	void reload();
+
+	void crouch();
+	void startSneak();
+	void stopSneak();
+	void startSprint();
+	void stopSprint();
+
 	void moveForward(float val);
 	void moveRight(float val);
 	void turnAtRate(float rate);

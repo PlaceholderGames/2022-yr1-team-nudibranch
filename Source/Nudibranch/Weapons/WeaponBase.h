@@ -22,7 +22,8 @@ protected:
 
 public:
 
-	void fire();
+	void startFire();
+	void stopFire();
 	void reload();
 
 	int getResAmmo();
@@ -31,8 +32,13 @@ public:
 	UPROPERTY(EditAnywhere)
 		class USkeletalMeshComponent* weapMesh;
 
-	UPROPERTY(EditAnywhere)
-		class UAnimationAsset* fireAnim;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UAnimMontage* fireAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class USoundBase* fireSound;
+
+	//// Weapon Parameters ////
 
 	// Ammo parameters
 	UPROPERTY(EditAnywhere)
@@ -47,4 +53,31 @@ public:
 	UPROPERTY(EditAnywhere)
 		int reserveAmmo; //reserve ammo
 
+	UPROPERTY(EditAnywhere)
+		float fireRate;
+
+	FTimerHandle TimerHandle_ShotTimer;
+
+	float lastFireTime;
+	float shotTimer; //firerate
+
+protected:
+	class UWorld* world;
+	class UAnimInstance* animInstance;
+
+	FRotator projectileRotation;
+	FVector projectileLocation;
+
+	void fire();
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Weapon)
+		class USceneComponent* muzzleLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+		FVector gunOffset;
+
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class AProjectileBase> ProjectileClass;
+
+	class AProjectileBase* projectile;
 };
