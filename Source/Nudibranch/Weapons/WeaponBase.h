@@ -38,6 +38,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class USoundBase* fireSound;
 
+	FTimerHandle TimerHandle_ShotTimer;
+
+	float lastFireTime;
+	float shotTimer; //firerate
+
+protected:
+	class UWorld* world;
+	class UAnimInstance* animInstance;
+
+	FRotator projectileRotation;
+	FVector projectileLocation;
+
 	//// Weapon Parameters ////
 
 	// Ammo parameters
@@ -56,25 +68,10 @@ public:
 	UPROPERTY(EditAnywhere)
 		float fireRate;
 
-	FTimerHandle TimerHandle_ShotTimer;
-
-	float lastFireTime;
-	float shotTimer; //firerate
-
-protected:
-	class UWorld* world;
-	class UAnimInstance* animInstance;
-
-	FRotator projectileRotation;
-	FVector projectileLocation;
-
 	void fire();
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Weapon)
 		class USceneComponent* muzzleLocation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
-		FVector gunOffset;
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class AProjectileBase> ProjectileClass;

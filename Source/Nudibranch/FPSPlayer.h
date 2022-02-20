@@ -38,13 +38,6 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* handsMesh;
 
-	//single weapon code : remove after implementing the weapon base system
-	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		//class USkeletalMeshComponent* gunMesh;
-
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		class USceneComponent* muzzleLocation;
-
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 		class UCameraComponent* fpsCamera;
 
@@ -57,21 +50,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Game)
 		FVector gunOffset;
 
-	//single weapon code : remove after implementing the weapon base system
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		class USoundBase* fireSound;
-
-	//single weapon code : remove after implementing the weapon base system
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		class UAnimMontage* fireAnim;
-
 protected:
 
 	bool bIsSprinting = false;
 	bool bIsSneaking = false;
-	float sprintMultiplier = 1.0f;
-	float walkMultiplier = 0.70f;
-	float sneakMultiplier = 0.25f;
+	float sprintMultiplier = 1.0f; //multiplier used when sprinting
+	float walkMultiplier = 0.70f; //default walking speed multiplier
+	float sneakMultiplier = 0.25f; //multiplier used when slow walking
 
 	void startFire();
 	void stopFire();
@@ -88,13 +73,12 @@ protected:
 	void turnAtRate(float rate);
 	void lookUpAtRate(float rate);
 
+	UFUNCTION(BlueprintPure)
+		FString getAmmoDisplay();
+
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class AWeaponBase> WeaponClass;
 
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<class AProjectileBase> ProjectileClass;
-
 	class AWeaponBase* weap;
-	class AProjectileBase* projectile;
 
 };

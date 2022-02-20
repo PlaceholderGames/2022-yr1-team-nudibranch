@@ -23,9 +23,6 @@ AWeaponBase::AWeaponBase()
 	ammoInClip = clipSize;
 
 	fireRate = 600;
-
-	gunOffset = FVector(100.0f, 0.0f, 10.0f);
-
 }
 
 // Called when the game starts or when spawned
@@ -35,37 +32,47 @@ void AWeaponBase::BeginPlay()
 	
 	shotTimer = 60 / fireRate;
 
+	//attach the muzzleLocation to the weapon at the muzzle bone
 	muzzleLocation->AttachToComponent(weapMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("Muzzle"));//make sure gun skeleton has muzzle bone
-	muzzleLocation->SetRelativeLocation(FVector::ZeroVector); //(0.2f, 48.4f, -10.6f)); //offset from the grip point to the muzzle if not using muzzle bone
+	//muzzleLocation->SetRelativeLocation(FVector::ZeroVector); //(0.2f, 48.4f, -10.6f)); //offset from the grip point to the muzzle if not using muzzle bone
 }
 
 void AWeaponBase::fire()
 {
-	if (ammoInClip > 0)
+	AActor* player = GetOwner();
+	world = GetWorld();
+
+	if (world != NULL)	//check the world exists
 	{
-		ammoInClip -= 1; //dec ammo count
-		
-		////// do other params here //////
-
-		world = GetWorld();
-
-		if (world != NULL) //check the world exists
+		if (ammoInClip > 0) //Check that the weapon has ammo
 		{
-			projectileRotation = GetActorRotation(); //not sure about this | could try getOwner() first
-			projectileRotation.Add(0, 90, 0);
+			ammoInClip -= 1; //dec ammo count
 
-			//check muzzle is not null - if it is then use actor location
-			//spawnLocation = ((muzzleLocation != nullptr) ? muzzleLocation->GetComponentLocation() : GetActorLocation()) + spawnRotation.RotateVector(gunOffset);
+			FVector eyeLoc; //used to store the location of the players eyes
 
-			if (muzzleLocation != nullptr)
+			//get rotation for projectile
+			if (player)
 			{
-				//debug
-				//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Muzzle not NULL"));
+				player->GetActorEyesViewPoint(eyeLoc, projectileRotation); //set the rotation to the same as the eyes
+			}
+			else
+			{
+				//not an ideal method will not take into account roll or pitch
+				//this will be used if player is not found
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("!owner"));
+				projectileRotation = GetActorRotation();
+				projectileRotation.Add(0, 90, 0);
+			}
+
+			//get location for projectile
+			if (muzzleLocation != NULL)
+			{
 				projectileLocation = muzzleLocation->GetComponentLocation();
 			}
 			else
 			{
-				projectileLocation = GetActorLocation(); //+ projectileRotation.RotateVector(gunOffset);
+				//if muzzle does not exist then use the eye location for spawning the projectile
+				projectileLocation = eyeLoc;
 			}
 
 			//check if the projectile will collide immediatly, if it does then try to move it
@@ -75,31 +82,23 @@ void AWeaponBase::fire()
 			//spawn the projectile
 			projectile = world->SpawnActor<AProjectileBase>(ProjectileClass, projectileLocation, projectileRotation, actorSpawnParams);
 
-			//debug
-			if (GEngine && projectile != NULL)
-			{
-				//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Projectile Spawned"));
-			}
-
 			//play the firing sound
 			if (fireSound != NULL)
 			{
 				UGameplayStatics::PlaySoundAtLocation(this, fireSound, GetActorLocation());
 			}
 			
-
 			//play animation
 			weapMesh->PlayAnimation(fireAnim, false);
 		}
+		else //no ammo
+		{
+			//debug
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Clip empty: reloading"));
 
-	}
-	else
-	{
-		//debug
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Clip empty: reloading"));
-
-		stopFire(); //stop firing 
-		reload(); //reload
+			stopFire(); //stop firing 
+			reload(); //reload
+		}
 	}
 }
 
@@ -155,13 +154,13 @@ void AWeaponBase::reload()
 	}
 }
 
-//will be used to for HUD
+//used for hud display
 int AWeaponBase::getResAmmo()
 {
 	return reserveAmmo;
 }
 
-//will be used to for HUD
+//used for hud display
 int AWeaponBase::getClipAmmo()
 {
 	return ammoInClip;

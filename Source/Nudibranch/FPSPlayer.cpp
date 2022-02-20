@@ -4,7 +4,6 @@
 
 #include "FPSGameMode.h"
 #include "Weapons/WeaponBase.h"
-#include "Projectiles/ProjectileBase.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
@@ -42,22 +41,6 @@ AFPSPlayer::AFPSPlayer()
 	handsMesh->AddRelativeRotation(FRotator(1.9f, -19.19f, 5.2f));
 	handsMesh->AddRelativeLocation(FVector(-0.5f, -4.4f, -155.7f));
 
-	//single weapon code : remove after implementing the weapon base system
-	/*Create gun mesh
-	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun"));
-	GunMesh->SetOnlyOwnerSee(true);
-	GunMesh->bCastDynamicShadow = false;
-	GunMesh->CastShadow = false;*/
-
-	//Create muzzle component
-	muzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle Location"));
-
-	//single weapon code : remove after implementing the weapon base system
-	/*Create muzzle location(bullet spawn location)
-	MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle Location"));
-	MuzzleLocation->SetupAttachment(GunMesh);
-	MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));*/
-
 	//set offset for the gun
 	gunOffset = FVector(100.0f, 0.0f, 10.0f);
 
@@ -81,6 +64,8 @@ void AFPSPlayer::BeginPlay()
 		FActorSpawnParameters weapSpawnParams;
 		weapSpawnParams.bNoFail = true;
 		weapSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		weapSpawnParams.Owner = this;
+		weapSpawnParams.Instigator = this;
 
 		FTransform weapTransform;
 		weapTransform.SetLocation(FVector::ZeroVector);
@@ -93,28 +78,11 @@ void AFPSPlayer::BeginPlay()
 		{
 			//attach the weapon to the hands
 			weap->AttachToComponent(handsMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("GripPoint"));
-
-			//set the muzzle location here as we need to gun to already exist
-			muzzleLocation->AttachToComponent(handsMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("GripPoint"));//should change this: projectile spawns at hands
-			muzzleLocation->SetRelativeLocation(FVector::ZeroVector); //(0.2f, 48.4f, -10.6f));
-
-			//debug out
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Created the weapon"));
-			}
 		}
 	}
 
-	//single weapon code : remove after implementing the weapon base system
-	//attach the gun to the hands
-	//do this here so that skeletal meshes already exist	
-	//									  dont scale with hands									socket to attach to
-	//GunMesh->AttachToComponent(HandsMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("GripPoint"));
-
 	//set the anim instance
 	animInstance = handsMesh->GetAnimInstance();
-
 }
 
 // Called every frame
@@ -164,6 +132,13 @@ void AFPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 }
 
+
+/*
+
+		WEAPON FUNCTIONS
+
+*/
+
 void AFPSPlayer::startFire()
 {
 	if (weap != nullptr)
@@ -188,6 +163,20 @@ void AFPSPlayer::reload()
 	}
 }
 
+//Used by the HUD to display the current ammo
+FString AFPSPlayer::getAmmoDisplay()
+{
+	FString str = "Ammo: " + FString::SanitizeFloat(weap->getClipAmmo()) + " / " + FString::SanitizeFloat(weap->getResAmmo()); //should change this to a current weapon ptr
+	return str;
+}
+
+
+/*
+
+		MOVEMENT FUNCTIONS
+
+*/
+
 void AFPSPlayer::crouch()
 {
 	bIsCrouched = !bIsCrouched; //toggle crouch
@@ -209,27 +198,22 @@ void AFPSPlayer::crouch()
 void AFPSPlayer::startSneak()
 {
 	bIsSneaking = true;
-	//GetCharacterMovement()->MaxWalkSpeed /= sneakMultiplier;
 }
 
 void AFPSPlayer::stopSneak()
 {
 	bIsSneaking = false;
-	//GetCharacterMovement()->MaxWalkSpeed *= sneakMultiplier;
 }
 
 void AFPSPlayer::startSprint()
 {
 	bIsSprinting = true;
-	//GetCharacterMovement()->MaxWalkSpeed *= sprintMultiplier;
 }
 
 void AFPSPlayer::stopSprint()
 {
 	bIsSprinting = false;
-	//GetCharacterMovement()->MaxWalkSpeed /= sprintMultiplier;
 }
-
 
 void AFPSPlayer::moveForward(float val)
 {
