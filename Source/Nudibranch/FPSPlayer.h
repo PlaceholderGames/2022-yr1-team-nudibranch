@@ -58,6 +58,13 @@ protected:
 	float walkMultiplier = 0.70f; //default walking speed multiplier
 	float sneakMultiplier = 0.25f; //multiplier used when slow walking
 
+	float health;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Game, Meta = (ClampMin = 0.0f))
+		float maxHealth;
+
+	void applyDamage(AActor* damagedActor, float damage, const UDamageType* damageType, AController* instigator, AActor* damageCauser);
+
 	void startFire();
 	void stopFire();
 	void reload();

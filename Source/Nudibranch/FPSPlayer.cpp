@@ -48,6 +48,9 @@ AFPSPlayer::AFPSPlayer()
 	bIsSneaking = false;
 	bIsCrouched = false;
 
+	//set the health
+	health = maxHealth;
+
 }
 
 // Called when the game starts or when spawned
@@ -57,6 +60,9 @@ void AFPSPlayer::BeginPlay()
 
 	//set the world to the current world
 	world = GetWorld();
+
+	//bind take damage event to apply damage method
+	this->OnTakeAnyDamage.AddDynamic(this, &AFPSPlayer::applyDamage);
 
 	//Check weapon & world exist
 	if (WeaponClass && world) //if weapon class exists then add the weapon to the world and attach to the player
@@ -133,6 +139,12 @@ void AFPSPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 }
 
 
+void AFPSPlayer::applyDamage(AActor* damagedActor, float damage, const UDamageType* damageType, AController* instigator, AActor* damageCauser)
+{
+	health -= damage;
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Health: " + FString::SanitizeFloat(health)));
+}
+
 /*
 
 		WEAPON FUNCTIONS
@@ -184,13 +196,15 @@ void AFPSPlayer::crouch()
 	if (bIsCrouched)
 	{
 		GetCharacterMovement()->bWantsToCrouch = true;
-		GetCapsuleComponent()->SetCapsuleHalfHeight(40.0f);
+		GetCharacterMovement()->Crouch(true);
+		//GetCapsuleComponent()->SetCapsuleHalfHeight(40.0f);
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Crouched"));
 	}
 	else
 	{
 		GetCharacterMovement()->bWantsToCrouch = false;
-		GetCapsuleComponent()->SetCapsuleHalfHeight(95.0f);
+		GetCharacterMovement()->UnCrouch(true);
+		//GetCapsuleComponent()->SetCapsuleHalfHeight(95.0f);
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Uncrouched"));
 	}
 }
@@ -220,20 +234,17 @@ void AFPSPlayer::moveForward(float val)
 	if (val != 0.0f) //if val is not nothing then
 	{	//add movement input
 
-		if (!bIsCrouched)
+		if (bIsSprinting && !bIsCrouched)
 		{
-			if (bIsSprinting)
-			{
-				val *= sprintMultiplier;
-			}
-			else if (bIsSneaking)
-			{
-				val *= sneakMultiplier;
-			}
-			else
-			{
-				val *= walkMultiplier;
-			}
+			val *= sprintMultiplier;
+		}
+		else if (bIsSneaking)
+		{
+			val *= sneakMultiplier;
+		}
+		else
+		{
+			val *= walkMultiplier;
 		}
 
 		AddMovementInput(GetActorForwardVector(), val);
@@ -244,6 +255,16 @@ void AFPSPlayer::moveRight(float val)
 {
 	if (val != 0.0f) //if val is not nothing then
 	{	//add movement input
+
+		if (bIsSneaking)
+		{
+			val *= sneakMultiplier;
+		}
+		else
+		{
+			val *= walkMultiplier;
+		}
+
 		AddMovementInput(GetActorRightVector(), val);
 	}
 }

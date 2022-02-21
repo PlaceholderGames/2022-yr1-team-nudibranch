@@ -53,10 +53,9 @@ protected:
 	//// Weapon Parameters ////
 
 	// Ammo parameters
-	UPROPERTY(EditAnywhere)
-		int ammoDiff; //ammo reserve
+	int ammoDiff; //diff between loaded ammo and clip size
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (ClampMin=1))
 		int clipSize; //size of clip/mag
 
 	UPROPERTY(EditAnywhere)

@@ -2,6 +2,7 @@
 
 #include "WeaponBase.h"
 #include "Nudibranch/Projectiles/ProjectileBase.h"
+#include "Nudibranch/FPSPlayer.h"
 
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
@@ -19,7 +20,7 @@ AWeaponBase::AWeaponBase()
 	muzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle Location"));
 
 	clipSize = 30;
-	reserveAmmo = 100;
+	reserveAmmo = 200;
 	ammoInClip = clipSize;
 
 	fireRate = 600;
@@ -40,6 +41,7 @@ void AWeaponBase::BeginPlay()
 void AWeaponBase::fire()
 {
 	AActor* player = GetOwner();
+
 	world = GetWorld();
 
 	if (world != NULL)	//check the world exists

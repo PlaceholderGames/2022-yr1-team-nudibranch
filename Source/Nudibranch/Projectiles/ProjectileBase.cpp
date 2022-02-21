@@ -2,6 +2,7 @@
 
 #include "ProjectileBase.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -49,6 +50,21 @@ void AProjectileBase::Tick(float DeltaTime)
 
 }
 
+// Hit event
 void AProjectileBase::onHit(UPrimitiveComponent* hitComp, AActor* otherActor, UPrimitiveComponent* otherComp, int32 otherBodyIndex, bool bFromSweep, const FHitResult& hit)
 {
+	FDamageEvent damageEvent;
+
+	if ((otherActor != NULL) && (otherActor != this) && (otherComp != NULL) && otherComp->IsSimulatingPhysics())
+	{
+		otherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+
+		Destroy();
+	}
+
+	//apply damage to other actors
+	if (otherActor != NULL)
+	{
+		otherActor->TakeDamage(100, damageEvent, this->GetInstigatorController(), this);
+	}
 }
