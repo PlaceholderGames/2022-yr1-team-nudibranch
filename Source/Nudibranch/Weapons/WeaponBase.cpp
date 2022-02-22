@@ -6,9 +6,6 @@
 
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "Components/InputComponent.h"
-#include "Animation/AnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -31,7 +28,7 @@ void AWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	shotTimer = 60 / fireRate;
+	shotTimer = 60 / fireRate; //amount of time between shots in seconds
 
 	//attach the muzzleLocation to the weapon at the muzzle bone
 	muzzleLocation->AttachToComponent(weapMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("Muzzle"));//make sure gun skeleton has muzzle bone
@@ -44,11 +41,12 @@ void AWeaponBase::fire()
 
 	world = GetWorld();
 
-	if (world != NULL)	//check the world exists
+	if (world != nullptr)	//check the world exists
 	{
 		if (ammoInClip > 0) //Check that the weapon has ammo
 		{
 			ammoInClip -= 1; //dec ammo count
+			numShots++; //TODO: use this for burst maybe
 
 			FVector eyeLoc; //used to store the location of the players eyes
 
@@ -67,7 +65,7 @@ void AWeaponBase::fire()
 			}
 
 			//get location for projectile
-			if (muzzleLocation != NULL)
+			if (muzzleLocation != nullptr)
 			{
 				projectileLocation = muzzleLocation->GetComponentLocation();
 			}
@@ -85,34 +83,74 @@ void AWeaponBase::fire()
 			projectile = world->SpawnActor<AProjectileBase>(ProjectileClass, projectileLocation, projectileRotation, actorSpawnParams);
 
 			//play the firing sound
-			if (fireSound != NULL)
+			if (fireSound != nullptr)
 			{
 				UGameplayStatics::PlaySoundAtLocation(this, fireSound, GetActorLocation());
 			}
 			
 			//play animation
 			weapMesh->PlayAnimation(fireAnim, false);
+
+			//set last firetime
+			lastFireTime = GetWorld()->TimeSeconds;
+
 		}
 		else //no ammo
 		{
 			//debug
 			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Clip empty: reloading"));
-
 			stopFire(); //stop firing 
 			reload(); //reload
 		}
 	}
 }
 
+void AWeaponBase::burstFire(int &burstCount)
+{
+	if (burstCount < 4) //allow 3 shots
+	{
+		burstCount++;
+		fire();
+	}
+	else //clear timer
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle_ShotTimer);
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("bCount: "), burstCount));
+}
+
 void AWeaponBase::startFire()
 {
 	float firstDelay = FMath::Max(lastFireTime + shotTimer - GetWorld()->TimeSeconds, 0.0f);
-	GetWorldTimerManager().SetTimer(TimerHandle_ShotTimer, this, &AWeaponBase::fire, shotTimer, true, firstDelay);
+
+	switch (eFireMode)
+	{
+	case AUTO:
+		GetWorldTimerManager().SetTimer(TimerHandle_ShotTimer, this, &AWeaponBase::fire, shotTimer, true, firstDelay);
+		break;
+
+	case SEMI:
+		fire();
+		break;
+
+	case BURST:
+		int bCount = 0; //count the numbrer of bursts
+		//GetWorldTimerManager().SetTimer(TimerHandle_ShotTimer, this, &AWeaponBase::burstFire(bCount), shotTimer, true, firstDelay);
+
+		//using a lambda to pass bCount through to the burstFire method
+		GetWorldTimerManager().SetTimer(TimerHandle_ShotTimer, [&]() { this->burstFire(bCount); }, shotTimer, true, firstDelay); 
+		break;
+	}
 }
 
 void AWeaponBase::stopFire()
 {
-	GetWorldTimerManager().ClearTimer(TimerHandle_ShotTimer);
+	//only stop timer if firemode is atuo
+	if (eFireMode == AUTO)
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle_ShotTimer);
+	}
 }
 
 void AWeaponBase::reload()

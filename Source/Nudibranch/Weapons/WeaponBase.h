@@ -6,6 +6,14 @@
 #include "GameFramework/Actor.h"
 #include "WeaponBase.generated.h"
 
+UENUM()
+enum EnumFireMode
+{
+	AUTO	UMETA(DisplayName = "Fully Automatic"),
+	SEMI	UMETA(DisplayName = "Semi Automatic / Single Fire"),
+	BURST	UMETA(DisplayName = "Burst Fire")
+};
+
 UCLASS()
 class NUDIBRANCH_API AWeaponBase : public AActor
 {
@@ -29,13 +37,16 @@ public:
 	int getResAmmo();
 	int getClipAmmo();
 
-	UPROPERTY(EditAnywhere)
+	//Weapon mesh
+	UPROPERTY(EditAnywhere, Category = Weapon)
 		class USkeletalMeshComponent* weapMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//animation used when firing
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 		class UAnimMontage* fireAnim;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//sound used when firing
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 		class USoundBase* fireSound;
 
 	FTimerHandle TimerHandle_ShotTimer;
@@ -50,29 +61,42 @@ protected:
 	FRotator projectileRotation;
 	FVector projectileLocation;
 
+	int numShots;
+
 	//// Weapon Parameters ////
 
 	// Ammo parameters
 	int ammoDiff; //diff between loaded ammo and clip size
 
-	UPROPERTY(EditAnywhere, meta = (ClampMin=1))
-		int clipSize; //size of clip/mag
+	//size of clip/mag
+	UPROPERTY(EditAnywhere, Category = Weapon, meta = (ClampMin=1, DisplayName="Magazine Size"))
+		int clipSize;
 
-	UPROPERTY(EditAnywhere)
-		int ammoInClip; //currently loaded ammo
+	//currently loaded ammo
+	UPROPERTY(EditAnywhere, Category = Weapon)
+		int ammoInClip;
 
-	UPROPERTY(EditAnywhere)
-		int reserveAmmo; //reserve ammo
+	//reserve ammo
+	UPROPERTY(EditAnywhere, Category = Weapon)
+		int reserveAmmo;
 
-	UPROPERTY(EditAnywhere)
+	//Rate of fire
+	UPROPERTY(EditAnywhere, Category = Weapon)
 		float fireRate;
 
+	//Firing mode that the weapon will use
+	UPROPERTY(EditAnywhere, Category = Weapon /*meta = (DisplayName = "Firing Mode")*/)
+		TEnumAsByte<EnumFireMode> eFireMode;
+		
 	void fire();
+	void burstFire(int &burstCount);
 
+	//Location the projectile will shoot from
 	UPROPERTY(VisibleDefaultsOnly, Category = Weapon)
 		class USceneComponent* muzzleLocation;
 
-	UPROPERTY(EditAnywhere)
+	//Projectile that the weapon will shoot
+	UPROPERTY(EditAnywhere, Category = Weapon)
 		TSubclassOf<class AProjectileBase> ProjectileClass;
 
 	class AProjectileBase* projectile;
