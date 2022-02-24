@@ -13,9 +13,11 @@ AFPSButton::AFPSButton()
 	PrimaryActorTick.bCanEverTick = true;
 
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Component"));
-	CapsuleComp->SetCapsuleSize(10, 40);
-
+	CapsuleComp->SetCapsuleSize(10, 20);
 	RootComponent = CapsuleComp;
+
+	ButtonMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Button Mesh"));
+	ButtonMesh->SetupAttachment(CapsuleComp);
 
 	DoorComponent = CreateDefaultSubobject<ADoor>(TEXT("Door Component"));
 
@@ -41,14 +43,21 @@ void AFPSButton::Tick(float DeltaTime)
 
 void AFPSButton::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
 {
-	//open door
+	DoorComponent->OpenDoor(); //open door
 
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("OPEN THE DOOR"));
-	GetWorldTimerManager().SetTimer(TimerHandle_DoorTimer, this, &AFPSButton::CloseDoor, openTime, false, -1.0f);
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("OPEN THE DOOR"));
+
+	//check if the timer is already active to prevent spamming the button to increase opening time for the door
+	if (!GetWorldTimerManager().IsTimerActive(TimerHandle_DoorTimer))
+	{
+		GetWorldTimerManager().SetTimer(TimerHandle_DoorTimer, this, &AFPSButton::CloseDoor, openTime, false, -1.0f);	
+	}
 }
 
 void AFPSButton::CloseDoor()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("CLOSE THE DOOR"));
+	DoorComponent->CloseDoor(); //close the door
+
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("CLOSE THE DOOR"));
 	GetWorldTimerManager().ClearTimer(TimerHandle_DoorTimer);
 }

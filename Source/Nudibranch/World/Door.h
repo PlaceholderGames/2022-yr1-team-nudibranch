@@ -10,17 +10,33 @@ UCLASS()
 class NUDIBRANCH_API ADoor : public AActor
 {
 	GENERATED_BODY()
-	
+
+// ****** DEFAULT UE STUFF ******
 public:	
 	// Sets default values for this actor's properties
 	ADoor();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+// ******************************;
+
+public:
+
+	//Object used to reference position
+	// - use this as the door mesh will be moving
+	class USceneComponent* Position;
+
+	UPROPERTY(VisibleAnywhere)
+		class UStaticMeshComponent* DoorMesh;
+
+	void OpenDoor();
+	void CloseDoor();
+protected:
+
+	bool bIsOpen = false;
+	bool bIsClosed = true;
 
 };

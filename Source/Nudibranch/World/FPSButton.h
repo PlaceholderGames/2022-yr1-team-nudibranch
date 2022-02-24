@@ -28,6 +28,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		class UCapsuleComponent* CapsuleComp;
 
+	UPROPERTY(EditAnywhere)
+		class UStaticMeshComponent* ButtonMesh;
+
 	UPROPERTY(EditAnywhere, meta = (DisplayName="Door to open"))
 		class ADoor* DoorComponent;
 
