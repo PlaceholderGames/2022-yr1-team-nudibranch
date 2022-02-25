@@ -85,7 +85,7 @@ void AWeaponBase::fire()
 			//play the firing sound
 			if (fireSound != nullptr)
 			{
-				UGameplayStatics::PlaySoundAtLocation(this, fireSound, GetActorLocation());
+				playFireSound();
 			}
 			
 			//play animation
@@ -204,4 +204,9 @@ int AWeaponBase::getResAmmo()
 int AWeaponBase::getClipAmmo()
 {
 	return ammoInClip;
+}
+
+//Define temporary behaviour for playFireSound
+void AWeaponBase::playFireSound_Implementation(){
+    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Playing a sound."));
 }

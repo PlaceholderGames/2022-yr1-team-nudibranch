@@ -10,26 +10,26 @@ set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_OBJECTS 1 CACHE BOOL "" FORCE)
 set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES 1 CACHE BOOL "" FORCE)
 
 # Standard Includes
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-includes.cmake")
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-definitions.cmake")
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-headers-ue4.cmake")
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-headers-project.cmake")
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-sources-engine.cmake")
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-sources-project.cmake")
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-csharp-engine.cmake")
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-csharp-project.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-includes.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-definitions.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-headers-ue4.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-headers-project.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-sources-engine.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-sources-project.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-csharp-engine.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-csharp-project.cmake")
 
 # Optional Shader Include
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-shaders-engine.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-shaders-engine.cmake")
 set_source_files_properties(${ENGINE_SHADER_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-shaders-project.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-shaders-project.cmake")
 set_source_files_properties(${PROJECT_SHADER_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 source_group("Shader Files" REGULAR_EXPRESSION .*.usf)
 
 # Optional Config Include
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-config-engine.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-config-engine.cmake")
 set_source_files_properties(${ENGINE_CONFIG_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
-include("D:/UE Projects/2022-yr1-team-nudibranch/Intermediate/ProjectFiles/cmake-config-project.cmake")
+include("D:/UE Projects/Nudibranch/Intermediate/ProjectFiles/cmake-config-project.cmake")
 set_source_files_properties(${PROJECT_CONFIG_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 source_group("Config Files" REGULAR_EXPRESSION .*.ini)
 
@@ -41,12 +41,12 @@ add_custom_target(UE4Game-Win64-DebugGame call "C:/Program Files/Epic Games/UE_4
 add_custom_target(UE4Game-Win64-Shipping call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" UE4Game Win64 Shipping  -game -progress -buildscw VERBATIM)
 add_custom_target(UE4Game call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" UE4Game Win64 Development  -game -progress -buildscw VERBATIM)
 
-add_custom_target(Nudibranch-Win64-DebugGame call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" Nudibranch Win64 DebugGame "-project=D:/UE Projects/2022-yr1-team-nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
-add_custom_target(Nudibranch-Win64-Shipping call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" Nudibranch Win64 Shipping "-project=D:/UE Projects/2022-yr1-team-nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
-add_custom_target(Nudibranch call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" Nudibranch Win64 Development "-project=D:/UE Projects/2022-yr1-team-nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(Nudibranch-Win64-DebugGame call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" Nudibranch Win64 DebugGame "-project=D:/UE Projects/Nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(Nudibranch-Win64-Shipping call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" Nudibranch Win64 Shipping "-project=D:/UE Projects/Nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(Nudibranch call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" Nudibranch Win64 Development "-project=D:/UE Projects/Nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
 
-add_custom_target(NudibranchEditor-Win64-DebugGame call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" NudibranchEditor Win64 DebugGame "-project=D:/UE Projects/2022-yr1-team-nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
-add_custom_target(NudibranchEditor-Win64-Shipping call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" NudibranchEditor Win64 Shipping "-project=D:/UE Projects/2022-yr1-team-nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
-add_custom_target(NudibranchEditor call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" NudibranchEditor Win64 Development "-project=D:/UE Projects/2022-yr1-team-nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(NudibranchEditor-Win64-DebugGame call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" NudibranchEditor Win64 DebugGame "-project=D:/UE Projects/Nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(NudibranchEditor-Win64-Shipping call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" NudibranchEditor Win64 Shipping "-project=D:/UE Projects/Nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
+add_custom_target(NudibranchEditor call "C:/Program Files/Epic Games/UE_4.25/Engine/Build/BatchFiles/Build.bat" NudibranchEditor Win64 Development "-project=D:/UE Projects/Nudibranch/Nudibranch.uproject" -game -progress -buildscw VERBATIM)
 
 add_executable(FakeTarget ${ENGINE_HEADER_FILES} ${ENGINE_SOURCE_FILES} ${ENGINE_CSHARP_FILES} ${ENGINE_SHADER_FILES} ${ENGINE_CONFIG_FILES} ${PROJECT_HEADER_FILES} ${PROJECT_SOURCE_FILES} ${PROJECT_CSHARP_FILES} ${PROJECT_SHADER_FILES} ${PROJECT_CONFIG_FILES})
