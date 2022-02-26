@@ -99,7 +99,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Weapon)
 		TSubclassOf<class AProjectileBase> ProjectileClass;
 
-    //Declared in blueprint to allow for Vison sphere spawning
+    //Declared in blueprint to allow for Vision sphere spawning
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlaySoundFunction")
         void playFireSound();
 

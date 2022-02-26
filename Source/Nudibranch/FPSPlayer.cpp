@@ -280,3 +280,7 @@ void AFPSPlayer::lookUpAtRate(float rate)
 	//Add pitch input (* by getDeltaSeconds for a smoother input)
 	AddControllerPitchInput(rate * lookUpRate * GetWorld()->GetDeltaSeconds());
 }
+
+void AFPSPlayer::playFootstepSound_Implementation(){
+    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Playing a sound."));
+}

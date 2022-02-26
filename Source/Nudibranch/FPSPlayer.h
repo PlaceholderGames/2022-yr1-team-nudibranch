@@ -88,4 +88,8 @@ protected:
 
 	class AWeaponBase* weap;
 
+    //Declared in blueprint to allow for Vision sphere spawning
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlaySoundFunction")
+        void playFootstepSound();
+
 };
