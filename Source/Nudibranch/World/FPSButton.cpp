@@ -67,5 +67,5 @@ void AFPSButton::CloseDoor()
 }
 
 void AFPSButton::PlayTickSound_Implementation(){
-    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Playing Tick Sound."));
+
 }
