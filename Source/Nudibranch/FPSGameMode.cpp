@@ -15,68 +15,78 @@ void AFPSGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-    Controller = GetWorld()->GetFirstPlayerController();
+	Controller = GetWorld()->GetFirstPlayerController();
 
-    FInputModeGameOnly inMode;
-    Controller->SetInputMode(inMode);
-    Controller->bShowMouseCursor = false;
+	FInputModeGameOnly inMode;
+	Controller->SetInputMode(inMode);
+	Controller->bShowMouseCursor = false;
 
-    CheckLevel();
+	CheckLevel();
 }
 
 void AFPSGameMode::CheckLevel()
 {
 	FString CurrLvlName = GetWorld()->GetMapName();
 
-    LvlNames.Find(CurrLvlName, CurrLvlIndex);
+	LvlNames.Find(CurrLvlName, CurrLvlIndex);
 
-    if (CurrLvlIndex < LvlNames.Num() - 1)
-    {
-        NextLvl = LvlNames[CurrLvlIndex + 1];
-    }
-    else
-    {
-        NextLvl = "GameEnd";
-    }
+	if (CurrLvlIndex < LvlNames.Num() - 1)
+	{
+		NextLvl = LvlNames[CurrLvlIndex + 1];
+	}
+	else
+	{
+		NextLvl = "GameEnd";
+	}
 }
 
 void AFPSGameMode::ResetGame()
 {
 	FString LvlString = GetWorld()->GetMapName();
-    FName LvlToLoad = FName(*LvlString);
+	FName LvlToLoad = FName(*LvlString);
 
-    UGameplayStatics::OpenLevel(this, LvlToLoad, true);
+	UGameplayStatics::OpenLevel(this, LvlToLoad, true);
 }
 
 void AFPSGameMode::LevelComplete()
 {
-    LvlCompleteWidget = CreateWidget<UUserWidget>(GetWorld(), DefLvlCompleteWidget);
-    LvlCompleteWidget->AddToViewport();
+	if (DefLvlCompleteWidget)
+	{
+		LvlCompleteWidget = CreateWidget<UUserWidget>(GetWorld(), DefLvlCompleteWidget);
+		LvlCompleteWidget->AddToViewport();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No deflvl widget"));
+	}
 
-    GetWorldTimerManager().SetTimer(TimerHandle_LvlSwapTimer, this, &AFPSGameMode::LoadNextLevel, 2.0f, false);
+	GetWorldTimerManager().SetTimer(TimerHandle_LvlSwapTimer, this, &AFPSGameMode::LoadNextLevel, 2.0f, false);
 }
 
 void AFPSGameMode::LoadNextLevel()
 {
 	if (LvlNames.Contains(NextLvl))
-    {
-        FName LvlToLoad = FName(*NextLvl);
-        UGameplayStatics::OpenLevel(this, LvlToLoad, true);
-    }
-    else
-    {
-        //show end game widget
+	{
+		FName LvlToLoad = FName(*NextLvl);
+		UGameplayStatics::OpenLevel(this, LvlToLoad, true);
+	}
+	else
+	{
+		//show end game widget
 
-        LvlCompleteWidget->RemoveFromParent();
+		if (LvlCompleteWidget)
+		{
+			LvlCompleteWidget->RemoveFromParent();
 
-        GameCompleteWidget = CreateWidget<UUserWidget>(GetWorld(), DefGameCompleteWidget);
-        GameCompleteWidget->AddToViewport();
+			if (DefLvlCompleteWidget)
+			{
+				GameCompleteWidget = CreateWidget<UUserWidget>(GetWorld(), DefGameCompleteWidget);
+				GameCompleteWidget->AddToViewport();
 
-        Controller->bShowMouseCursor = true;
-
-        FInputModeUIOnly inMode;
-        Controller->SetInputMode(inMode);
-    }
+				Controller->bShowMouseCursor = true;
+				FInputModeUIOnly inMode;
+				Controller->SetInputMode(inMode);
+			}
+		}
+	}
 }
-
-
