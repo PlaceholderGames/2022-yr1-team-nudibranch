@@ -42,8 +42,14 @@ public:
 	UFUNCTION()
 		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit);
 
+    //Play ticking sound to let the player know the button is pressed.
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlaySoundFunction")
+        void PlayTickSound();
+
 protected:
 
 	void CloseDoor();
+
+    bool isOpen = false;
 
 };
