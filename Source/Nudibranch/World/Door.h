@@ -29,6 +29,9 @@ public:
 	// - use this as the door mesh will be moving
 	class USceneComponent* Position;
 
+    UPROPERTY(VisibleAnywhere)
+        class UBoxComponent* DoorColl;
+
 	UPROPERTY(VisibleAnywhere)
 		class UStaticMeshComponent* DoorMesh;
 

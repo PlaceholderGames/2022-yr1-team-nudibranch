@@ -23,21 +23,23 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "FPS Game Mode")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS Game Mode")
 		TSubclassOf<UUserWidget> DefLvlCompleteWidget;
 
-	UPROPERTY(EditAnywhere, Category = "FPS Game Mode")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS Game Mode")
 		UUserWidget* LvlCompleteWidget;
 
-	UPROPERTY(EditAnywhere, Category = "FPS Game Mode")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS Game Mode")
 		TSubclassOf<UUserWidget> DefGameCompleteWidget;
 
-	UPROPERTY(EditAnywhere, Category = "FPS Game Mode")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "FPS Game Mode")
 		UUserWidget* GameCompleteWidget;
+
+private:
 
 	void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "FPS Game Mode")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"), Category = "FPS Game Mode")
 		TArray<FString> LvlNames;
 
 	APlayerController* Controller;

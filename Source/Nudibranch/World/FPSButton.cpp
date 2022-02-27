@@ -43,21 +43,27 @@ void AFPSButton::Tick(float DeltaTime)
 
 void AFPSButton::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
 {
-	DoorComponent->OpenDoor(); //open door
-
-	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("OPEN THE DOOR"));
-
-	//check if the timer is already active to prevent spamming the button to increase opening time for the door
-	if (!GetWorldTimerManager().IsTimerActive(TimerHandle_DoorTimer))
+	if (DoorComponent != nullptr)
 	{
-		GetWorldTimerManager().SetTimer(TimerHandle_DoorTimer, this, &AFPSButton::CloseDoor, openTime, false, -1.0f);	
+		DoorComponent->OpenDoor(); //open door
+
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("OPEN THE DOOR"));
+
+		//check if the timer is already active to prevent spamming the button to increase opening time for the door
+		if (!GetWorldTimerManager().IsTimerActive(TimerHandle_DoorTimer))
+		{
+			GetWorldTimerManager().SetTimer(TimerHandle_DoorTimer, this, &AFPSButton::CloseDoor, openTime, false, -1.0f);	
+		}	
 	}
 }
 
 void AFPSButton::CloseDoor()
 {
-	DoorComponent->CloseDoor(); //close the door
+	if (DoorComponent != nullptr)
+	{
+		DoorComponent->CloseDoor(); //close the door
 
-	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("CLOSE THE DOOR"));
-	GetWorldTimerManager().ClearTimer(TimerHandle_DoorTimer);
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("CLOSE THE DOOR"));
+		GetWorldTimerManager().ClearTimer(TimerHandle_DoorTimer);	
+	}
 }

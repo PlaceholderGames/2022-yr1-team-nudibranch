@@ -2,6 +2,8 @@
 
 
 #include "Endpoint.h"
+#include "Nudibranch/FPSPlayer.h"
+#include "Nudibranch/FPSGameMode.h"
 
 #include "Components/BoxComponent.h"
 
@@ -24,6 +26,7 @@ void AEndpoint::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GameMode = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
 	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AEndpoint::OnHit);
 }
 
@@ -37,5 +40,12 @@ void AEndpoint::Tick(float DeltaTime)
 void AEndpoint::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& hit)
 {
 	// check if colliding actor is the player and end the level
+
+    AFPSPlayer* Player = Cast<AFPSPlayer>(OtherActor);
+
+    if (Player)
+    {
+        GameMode->LevelComplete();
+    }
 }
 

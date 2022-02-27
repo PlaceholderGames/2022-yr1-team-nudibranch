@@ -36,4 +36,5 @@ public:
 
 protected:
 
+    class AFPSGameMode* GameMode;
 };
