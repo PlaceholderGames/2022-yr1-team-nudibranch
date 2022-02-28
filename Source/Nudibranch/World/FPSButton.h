@@ -34,22 +34,25 @@ public:
 	UPROPERTY(EditAnywhere, meta = (DisplayName="Door to open"))
 		class ADoor* DoorComponent;
 
+    //Sound to play when the door is open
+    UPROPERTY(EditAnywhere)
+        class USoundBase* SoundComponent;
+
 	UPROPERTY(EditAnywhere, meta = (DisplayName="Time to stay open"))
 		float openTime;
 
-	FTimerHandle TimerHandle_DoorTimer;
-
-	UFUNCTION()
-		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit);
-
     //Play ticking sound to let the player know the button is pressed.
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlaySoundFunction")
-        void PlayTickSound();
+   // UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlaySoundFunction")
+        //void PlayTickSound();
 
 protected:
 
+    FTimerHandle TimerHandle_DoorTimer;
+    FTimerHandle TimerHandle_DoorSoundTimer;
+
+    void PlayTickSound();
 	void CloseDoor();
 
-    bool isOpen = false;
-
+    UFUNCTION()
+        void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit);
 };
