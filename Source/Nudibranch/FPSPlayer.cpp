@@ -178,8 +178,18 @@ void AFPSPlayer::reload()
 //Used by the HUD to display the current ammo
 FString AFPSPlayer::getAmmoDisplay()
 {
-	FString str = "Ammo: " + FString::SanitizeFloat(weap->getClipAmmo()) + " / " + FString::SanitizeFloat(weap->getResAmmo()); //should change this to a current weapon ptr
-	return str;
+    if (weap->getInfResAmmo())
+    {
+        FString str = "Ammo: " + FString::SanitizeFloat(weap->getClipAmmo()) + " / ∞"; //should change this to a current weapon ptr
+        return str;
+    }
+    else if (!weap->getInfAmmo())
+    {
+        FString str = "Ammo: " + FString::SanitizeFloat(weap->getClipAmmo()) + " / " + FString::SanitizeFloat(weap->getResAmmo()); //should change this to a current weapon ptr
+        return str;
+    }
+
+    return ""; //if infinite clip ammo is active then dont display ammo count
 }
 
 

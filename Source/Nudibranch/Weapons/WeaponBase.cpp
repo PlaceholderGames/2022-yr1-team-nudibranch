@@ -16,11 +16,13 @@ AWeaponBase::AWeaponBase()
 
 	muzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle Location"));
 
+    bInfClipAmmo = false;
+    bInfResAmmo = false;
 	clipSize = 30;
 	reserveAmmo = 200;
 	ammoInClip = clipSize;
 
-	fireRate = 600;
+	fireRate = 400;
 }
 
 // Called when the game starts or when spawned
@@ -43,9 +45,12 @@ void AWeaponBase::fire()
 
 	if (world != nullptr)	//check the world exists
 	{
-		if (ammoInClip > 0) //Check that the weapon has ammo
+		if (ammoInClip > 0 || bInfClipAmmo) //Check that the weapon has ammo
 		{
-			ammoInClip -= 1; //dec ammo count
+            if (!bInfClipAmmo)
+            {
+                ammoInClip -= 1; //dec ammo count
+            }
 			numShots++; //TODO: use this for burst maybe
 
 			FVector eyeLoc; //used to store the location of the players eyes
@@ -83,10 +88,7 @@ void AWeaponBase::fire()
 			projectile = world->SpawnActor<AProjectileBase>(ProjectileClass, projectileLocation, projectileRotation, actorSpawnParams);
 
 			//play the firing sound
-			if (fireSound != nullptr)
-			{
-				playFireSound();
-			}
+            playFireSound();
 			
 			//play animation
 			weapMesh->PlayAnimation(fireAnim, false);
@@ -155,43 +157,50 @@ void AWeaponBase::stopFire()
 
 void AWeaponBase::reload()
 {
-	//calc how many bullets until a full clip
-	ammoDiff = clipSize - ammoInClip;
+    if (!(bInfClipAmmo || bInfResAmmo)) //only reload if weapon doesnt have inf ammo
+    {
+        //calc how many bullets until a full clip
+        ammoDiff = clipSize - ammoInClip;
 
-	if (reserveAmmo == 0)
-	{
-		//out of ammo
+        if (reserveAmmo == 0)
+        {
+            //out of ammo
 
-		//debug
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("NO AMMO LEFT"));
-		
-		//play a sfx & display on screen possibly
+            //debug
+            GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("NO AMMO LEFT"));
 
-		return; //exit reload method
-	}
+            //play a sfx & display on screen possibly
 
-	//check that ammo in clip won't exceed clipsize
-	if (ammoInClip < clipSize)
-	{
-		//reload
+            return; //exit reload method
+        }
 
-		//if there is not enough ammo to fill the clip then fill as much as possible
-		if (reserveAmmo <= ammoDiff)
-		{
-			ammoInClip += reserveAmmo;
-			reserveAmmo = 0;
-		}
-		else
-		{
-			ammoInClip += ammoDiff;
-			reserveAmmo -= ammoDiff;
-		}
+        //check that ammo in clip won't exceed clipsize
+        if (ammoInClip < clipSize)
+        {
+            //reload
 
-		//debug
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Reloaded"));
+            //if there is not enough ammo to fill the clip then fill as much as possible
+            if (reserveAmmo <= ammoDiff)
+            {
+                ammoInClip += reserveAmmo;
+                reserveAmmo = 0;
+            }
+            else
+            {
+                ammoInClip += ammoDiff;
+                reserveAmmo -= ammoDiff;
+            }
 
-		//play reloading sfx hereee
-	}
+            //debug
+            GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Reloaded"));
+
+            //play reloading sfx hereee
+        }
+    }
+    else if (bInfResAmmo)
+    {
+        ammoInClip = clipSize; //if infinite reserve ammo the fill the clip
+    }
 }
 
 //used for hud display
@@ -206,7 +215,33 @@ int AWeaponBase::getClipAmmo()
 	return ammoInClip;
 }
 
-//Define temporary behaviour for playFireSound
-void AWeaponBase::playFireSound_Implementation(){
-    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Playing a sound."));
+//returns true if either clip or res ammo are infinite
+bool AWeaponBase::getInfAmmo()
+{
+    if (bInfClipAmmo || bInfResAmmo)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool AWeaponBase::getInfResAmmo()
+{
+    if (bInfResAmmo)
+    {
+        return true;
+    }
+    return false;
+}
+
+void AWeaponBase::playFireSound()
+{
+    if (fireSound != nullptr)
+    {
+        FVector MuzzleLoc = muzzleLocation->GetComponentLocation();
+        APawn* PlayerCharacter = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+
+        UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSound, MuzzleLoc, AWeaponBase::GetActorRotation(), 0.2f, 1.0f, 0.0f);
+        AWeaponBase::MakeNoise(1.0f, PlayerCharacter, MuzzleLoc, 0.0f, "PlayerFireNoise");
+    }
 }

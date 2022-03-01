@@ -25,8 +25,8 @@ AProjectileBase::AProjectileBase()
 	//create projectile component
 	projectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 	projectileMovement->UpdatedComponent = collSphere;
-	projectileMovement->InitialSpeed = 6000.0f;
-	projectileMovement->MaxSpeed = 6000.0f;
+	projectileMovement->InitialSpeed = 3000.0f;
+	projectileMovement->MaxSpeed = 30000.0f;
 	projectileMovement->bRotationFollowsVelocity = true;
 	projectileMovement->bShouldBounce = true;
 
