@@ -207,6 +207,13 @@ int AWeaponBase::getClipAmmo()
 }
 
 //Define temporary behaviour for playFireSound
-void AWeaponBase::playFireSound_Implementation(){
-    GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Playing a sound."));
+void AWeaponBase::playFireSound(){
+    if (fireSound != nullptr)
+    {
+        FVector MuzzleLoc = muzzleLocation->GetComponentLocation();
+        APawn* PlayerCharacter = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+
+        UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSound, MuzzleLoc, AWeaponBase::GetActorRotation(), 0.2f, 1.0f, 0.0f);
+        AWeaponBase::MakeNoise(0.2f, PlayerCharacter, MuzzleLoc, 0.0f, "PlayerFireNoise");
+    }
 }
