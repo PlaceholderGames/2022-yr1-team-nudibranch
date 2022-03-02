@@ -56,6 +56,10 @@ public:
 	float lastFireTime;
 	float shotTimer; //firerate
 
+    USceneComponent* getMuzzleLocation(){
+        return muzzleLocation();
+    }
+
 protected:
 	class UWorld* world;
 	class UAnimInstance* animInstance;

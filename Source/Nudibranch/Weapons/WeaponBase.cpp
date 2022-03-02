@@ -242,6 +242,7 @@ void AWeaponBase::playFireSound()
         APawn* PlayerCharacter = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
         UGameplayStatics::PlaySoundAtLocation(GetWorld(), fireSound, MuzzleLoc, AWeaponBase::GetActorRotation(), 0.2f, 1.0f, 0.0f);
-        AWeaponBase::MakeNoise(1.0f, PlayerCharacter, MuzzleLoc, 0.0f, "PlayerFireNoise");
+
+        AWeaponBase::MakeNoise(0.2f, PlayerCharacter, MuzzleLoc, 0.0f, "PlayerFireNoise");
     }
 }
