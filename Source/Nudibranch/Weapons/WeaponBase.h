@@ -54,9 +54,6 @@ public:
 	float lastFireTime;
 	float shotTimer; //firerate
 
-    USceneComponent* getMuzzleLocation(){
-        return muzzleLocation();
-    }
 
 protected:
 	class UWorld* world;
@@ -104,7 +101,6 @@ protected:
 		TSubclassOf<class AProjectileBase> ProjectileClass;
 
     //Declared in blueprint to allow for Vision sphere spawning
-    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlaySoundFunction")
         void playFireSound();
 
 	class AProjectileBase* projectile;
