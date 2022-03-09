@@ -40,7 +40,7 @@ void AProjectileBase::BeginPlay()
 	Super::BeginPlay();
 	
 	//link the collision method with collision event
-	collSphere->OnComponentBeginOverlap.AddDynamic(this, &AProjectileBase::onHit);
+	collSphere->OnComponentHit.AddDynamic(this, &AProjectileBase::onHit);
 }
 
 // Called every frame
@@ -51,7 +51,7 @@ void AProjectileBase::Tick(float DeltaTime)
 }
 
 // Hit event
-void AProjectileBase::onHit(UPrimitiveComponent* hitComp, AActor* otherActor, UPrimitiveComponent* otherComp, int32 otherBodyIndex, bool bFromSweep, const FHitResult& hit)
+void AProjectileBase::onHit(UPrimitiveComponent* hitComp, AActor* otherActor, UPrimitiveComponent* otherComp, FVector impluse, const FHitResult& hit)
 {
 	FDamageEvent damageEvent;
 
@@ -67,4 +67,19 @@ void AProjectileBase::onHit(UPrimitiveComponent* hitComp, AActor* otherActor, UP
 	{
 		otherActor->TakeDamage(100, damageEvent, this->GetInstigatorController(), this);
 	}
+
+    PlayHitSound(); //play the sound & spawn vision sphere
+}
+
+void AProjectileBase::PlayHitSound()
+{
+    if (hitSound != nullptr)
+    {
+		FVector ProjectileLoc = this->GetActorLocation();
+        APawn* PlayerCharacter = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+
+        UGameplayStatics::PlaySoundAtLocation(GetWorld(), hitSound, ProjectileLoc, AProjectileBase::GetActorRotation(), 0.2f, 1.0f, 0.0f);
+
+        AProjectileBase::MakeNoise(1.0f, PlayerCharacter, ProjectileLoc, 0.0f, "BallHitNoise");
+    }
 }
