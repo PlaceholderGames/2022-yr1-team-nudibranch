@@ -5,6 +5,7 @@
 
 #include "Components/BoxComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ADoor::ADoor()
@@ -54,6 +55,8 @@ void ADoor::OpenDoor()
         //use doormesh for rotation as its pivot point is not centred like the collider is
 		FRotator Rotation = FRotator(0.0f, 90.0f, 0.0f);
 		DoorMesh->AddRelativeRotation(FQuat(Rotation), false, 0, ETeleportType::None);
+
+        PlayDoorSound();
 	}
 }
 
@@ -67,7 +70,17 @@ void ADoor::CloseDoor()
 
 		FRotator Rotation = FRotator(0.0f, -90.0f, 0.0f);
         DoorMesh->AddRelativeRotation(FQuat(Rotation), false, 0, ETeleportType::None);
+
+        PlayDoorSound();
 	}
 }
 
+void ADoor::PlayDoorSound()
+{
+    FVector DoorLocation = DoorMesh->GetComponentLocation();
+    APawn* PlayerCharacter = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
+    UGameplayStatics::PlaySoundAtLocation(GetWorld(), DoorSound, DoorLocation, ADoor::GetActorRotation(), 0.2f, 1.0f, 0.0f);
+
+    ADoor::MakeNoise(0.2f, PlayerCharacter, DoorLocation, 0.0f, "DoorSound");
+}
