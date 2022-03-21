@@ -29,13 +29,6 @@ void AClock::BeginPlay()
     GetWorldTimerManager().SetTimer(TimerHandle_SecondTimer, this, &AClock::SecondElapsed, 1.0f, true, -1.0f);
 }
 
-// Called every frame
-void AClock::Tick(float DeltaTime)
-{
-    Super::Tick(DeltaTime);
-
-}
-
 // only play the tick in the second hand otherwise it will play multiple times.
 
 void AClock::SecondElapsed()
