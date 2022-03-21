@@ -32,6 +32,8 @@ AProjectileBase::AProjectileBase()
 
 	//despawn if nothing is hit after 3 seconds
 	InitialLifeSpan = 3.0f;
+
+	NumOfBounces = 3;
 }
 
 // Called when the game starts or when spawned
@@ -55,20 +57,29 @@ void AProjectileBase::onHit(UPrimitiveComponent* hitComp, AActor* otherActor, UP
 {
 	FDamageEvent damageEvent;
 
-	if ((otherActor != NULL) && (otherActor != this) && (otherComp != NULL) && otherComp->IsSimulatingPhysics())
+	//
+	if (bounceCount >= NumOfBounces)
 	{
-		otherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-
-		Destroy();
+		GetWorld()->DestroyActor(this);
 	}
-
-	//apply damage to other actors
-	if (otherActor != NULL)
+	else
 	{
-		otherActor->TakeDamage(100, damageEvent, this->GetInstigatorController(), this);
-	}
+		if ((otherActor != NULL) && (otherActor != this) && (otherComp != NULL) && otherComp->IsSimulatingPhysics())
+		{
+			otherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
-    PlayHitSound(); //play the sound & spawn vision sphere
+			Destroy();
+		}
+
+		//apply damage to other actors
+		if (otherActor != NULL)
+		{
+			otherActor->TakeDamage(100, damageEvent, this->GetInstigatorController(), this);
+		}
+
+		PlayHitSound(); //play the sound & spawn vision sphere
+		bounceCount++;
+	}
 }
 
 void AProjectileBase::PlayHitSound()

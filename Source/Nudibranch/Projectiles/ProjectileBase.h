@@ -36,6 +36,9 @@ public:
     UPROPERTY(EditAnywhere)
         class USoundBase* hitSound;
 
+	UPROPERTY(EditAnywhere, Category = Projectile)
+		int NumOfBounces;
+
 	UFUNCTION()
 		void onHit(UPrimitiveComponent* hitComp, AActor* otherActor, UPrimitiveComponent* otherComp, FVector impluse, const FHitResult& hit);
 
@@ -45,4 +48,7 @@ public:
 
 protected:
     void PlayHitSound();
+
+private:
+	int bounceCount;
 };
