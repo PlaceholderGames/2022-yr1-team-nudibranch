@@ -36,6 +36,8 @@ public:
 
 	int getResAmmo();
 	int getClipAmmo();
+    bool getInfAmmo();
+    bool getInfResAmmo();
 
 	//Weapon mesh
 	UPROPERTY(EditAnywhere, Category = Weapon)
@@ -54,7 +56,6 @@ public:
 	float lastFireTime;
 	float shotTimer; //firerate
 
-
 protected:
 	class UWorld* world;
 	class UAnimInstance* animInstance;
@@ -68,6 +69,12 @@ protected:
 
 	// Ammo parameters
 	int ammoDiff; //diff between loaded ammo and clip size
+
+    UPROPERTY(EditAnywhere, Category = Weapon, meta = (DisplayName="Infinite Clip Ammo?"))
+        bool bInfClipAmmo;
+
+    UPROPERTY(EditAnywhere, Category = Weapon, meta = (DisplayName="Infinite Reserve Ammo?"))
+        bool bInfResAmmo;
 
 	//size of clip/mag
 	UPROPERTY(EditAnywhere, Category = Weapon, meta = (ClampMin=1, DisplayName="Magazine Size"))
@@ -101,7 +108,8 @@ protected:
 		TSubclassOf<class AProjectileBase> ProjectileClass;
 
     //Declared in blueprint to allow for Vision sphere spawning
-        void playFireSound();
+    //UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "PlaySoundFunction")
+    void playFireSound();
 
 	class AProjectileBase* projectile;
 };
