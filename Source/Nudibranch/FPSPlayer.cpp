@@ -32,6 +32,10 @@ AFPSPlayer::AFPSPlayer()
 	fpsCamera->AddRelativeLocation(FVector(-39.65f, 1.75f, 64.0f));
 	fpsCamera->bUsePawnControlRotation = true;
 
+	cameraManager = CreateDefaultSubobject<APlayerCameraManager>(TEXT("Camera Manager"));
+	cameraManager->ViewPitchMax = 45;
+	cameraManager->ViewPitchMin = -45;
+
 	//Create hand mesh
 	handsMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Character Mesh"));
 	handsMesh->SetOnlyOwnerSee(true); //only the player can see their own hands
@@ -178,8 +182,18 @@ void AFPSPlayer::reload()
 //Used by the HUD to display the current ammo
 FString AFPSPlayer::getAmmoDisplay()
 {
-	FString str = "Ammo: " + FString::SanitizeFloat(weap->getClipAmmo()) + " / " + FString::SanitizeFloat(weap->getResAmmo()); //should change this to a current weapon ptr
-	return str;
+    if (weap->getInfResAmmo())
+    {
+        FString str = "Ammo: " + FString::SanitizeFloat(weap->getClipAmmo()) + " / ∞"; //should change this to a current weapon ptr
+        return str;
+    }
+    else if (!weap->getInfAmmo())
+    {
+        FString str = "Ammo: " + FString::SanitizeFloat(weap->getClipAmmo()) + " / " + FString::SanitizeFloat(weap->getResAmmo()); //should change this to a current weapon ptr
+        return str;
+    }
+
+    return ""; //if infinite clip ammo is active then dont display ammo count
 }
 
 
@@ -277,8 +291,7 @@ void AFPSPlayer::turnAtRate(float rate)
 
 void AFPSPlayer::lookUpAtRate(float rate)
 {
-	//Add pitch input (* by getDeltaSeconds for a smoother input)
-	AddControllerPitchInput(rate * lookUpRate * GetWorld()->GetDeltaSeconds());
+    AddControllerPitchInput(rate * lookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 void AFPSPlayer::playFootstepSound_Implementation(){

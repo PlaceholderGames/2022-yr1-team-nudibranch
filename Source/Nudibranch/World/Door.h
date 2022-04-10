@@ -35,11 +35,16 @@ public:
 	UPROPERTY(VisibleAnywhere)
 		class UStaticMeshComponent* DoorMesh;
 
+    UPROPERTY(EditAnywhere)
+        class USoundBase* DoorSound;
+
 	void OpenDoor();
 	void CloseDoor();
 protected:
 
 	bool bIsOpen = false;
 	bool bIsClosed = true;
+
+    void PlayDoorSound();
 
 };

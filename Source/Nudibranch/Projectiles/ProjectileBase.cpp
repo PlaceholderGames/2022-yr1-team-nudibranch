@@ -25,13 +25,15 @@ AProjectileBase::AProjectileBase()
 	//create projectile component
 	projectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 	projectileMovement->UpdatedComponent = collSphere;
-	projectileMovement->InitialSpeed = 6000.0f;
-	projectileMovement->MaxSpeed = 6000.0f;
+	projectileMovement->InitialSpeed = 3000.0f;
+	projectileMovement->MaxSpeed = 30000.0f;
 	projectileMovement->bRotationFollowsVelocity = true;
 	projectileMovement->bShouldBounce = true;
 
 	//despawn if nothing is hit after 3 seconds
 	InitialLifeSpan = 3.0f;
+
+	NumOfBounces = 3;
 }
 
 // Called when the game starts or when spawned
@@ -40,7 +42,7 @@ void AProjectileBase::BeginPlay()
 	Super::BeginPlay();
 	
 	//link the collision method with collision event
-	collSphere->OnComponentBeginOverlap.AddDynamic(this, &AProjectileBase::onHit);
+	collSphere->OnComponentHit.AddDynamic(this, &AProjectileBase::onHit);
 }
 
 // Called every frame
@@ -51,20 +53,44 @@ void AProjectileBase::Tick(float DeltaTime)
 }
 
 // Hit event
-void AProjectileBase::onHit(UPrimitiveComponent* hitComp, AActor* otherActor, UPrimitiveComponent* otherComp, int32 otherBodyIndex, bool bFromSweep, const FHitResult& hit)
+void AProjectileBase::onHit(UPrimitiveComponent* hitComp, AActor* otherActor, UPrimitiveComponent* otherComp, FVector impluse, const FHitResult& hit)
 {
 	FDamageEvent damageEvent;
 
-	if ((otherActor != NULL) && (otherActor != this) && (otherComp != NULL) && otherComp->IsSimulatingPhysics())
+	//
+	if (bounceCount >= NumOfBounces)
 	{
-		otherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-
-		Destroy();
+		GetWorld()->DestroyActor(this);
 	}
-
-	//apply damage to other actors
-	if (otherActor != NULL)
+	else
 	{
-		otherActor->TakeDamage(100, damageEvent, this->GetInstigatorController(), this);
+		if ((otherActor != NULL) && (otherActor != this) && (otherComp != NULL) && otherComp->IsSimulatingPhysics())
+		{
+			otherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+
+			Destroy();
+		}
+
+		//apply damage to other actors
+		if (otherActor != NULL)
+		{
+			otherActor->TakeDamage(100, damageEvent, this->GetInstigatorController(), this);
+		}
+
+		PlayHitSound(); //play the sound & spawn vision sphere
+		bounceCount++;
 	}
+}
+
+void AProjectileBase::PlayHitSound()
+{
+    if (hitSound != nullptr)
+    {
+		FVector ProjectileLoc = this->GetActorLocation();
+        APawn* PlayerCharacter = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+
+        UGameplayStatics::PlaySoundAtLocation(GetWorld(), hitSound, ProjectileLoc, AProjectileBase::GetActorRotation(), 0.2f, 1.0f, 0.0f);
+
+        AProjectileBase::MakeNoise(1.0f, PlayerCharacter, ProjectileLoc, 0.0f, "BallHitNoise");
+    }
 }

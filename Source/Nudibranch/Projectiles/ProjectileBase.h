@@ -33,10 +33,22 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Movement)
 		class UProjectileMovementComponent* projectileMovement;
 
+    UPROPERTY(EditAnywhere)
+        class USoundBase* hitSound;
+
+	UPROPERTY(EditAnywhere, Category = Projectile)
+		int NumOfBounces;
+
 	UFUNCTION()
-		void onHit(UPrimitiveComponent* hitComp, AActor* otherActor, UPrimitiveComponent* otherComp, int32 otherBodyIndex, bool bFromSweep, const FHitResult& hit);
+		void onHit(UPrimitiveComponent* hitComp, AActor* otherActor, UPrimitiveComponent* otherComp, FVector impluse, const FHitResult& hit);
 
 	UPROPERTY(EditAnywhere)
 		float damageVal = 20.0f;
 
+
+protected:
+    void PlayHitSound();
+
+private:
+	int bounceCount;
 };
